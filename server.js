@@ -1,5 +1,6 @@
 const { writeFileSync } = require('fs');
 const express = require('express');
+const crypto = require('crypto');
 const path = require('path');
 const app = express();
 
@@ -29,6 +30,9 @@ app.post('/api/notes', (req, res) => {
         return res.status(400).send('Invalid request body');
     }
 
+    // Generate a random id for the new note
+    const id = crypto.randomUUID();
+
     // Read notes from the json file
     const notes = require('./db/db.json');
     // Add the new note to the notes array
@@ -48,7 +52,7 @@ app.delete("/api/notes/:id", (req, res) => {
     // Read notes from the json file
     const notes = require('./db/db.json');
     // Remove the note with the given id
-    const newNotes = notes.filter((note, index) => index != id);
+    const newNotes = notes.filter((note) => note.id !== id);
     // Write the new notes array back to the json file
     writeFileSync('./db/db.json', JSON.stringify(newNotes, null, 2));
     // Send the deleted note back to the client
