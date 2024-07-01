@@ -31,6 +31,7 @@ let activeNote = {};
 const getNotes = () =>
   fetch('/api/notes', {
     method: 'GET',
+    cache: 'no-cache',
     headers: {
       'Content-Type': 'application/json'
     }
@@ -93,12 +94,10 @@ const handleNoteDelete = (e) => {
 
   if (activeNote.id === noteId) {
     activeNote = {};
+    renderActiveNote();
   }
 
-  deleteNote(noteId).then(() => {
-    getAndRenderNotes();
-    renderActiveNote();
-  });
+  deleteNote(noteId).then(getAndRenderNotes);
 };
 
 // Sets the activeNote and displays it
