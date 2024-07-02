@@ -4,6 +4,8 @@ const crypto = require('crypto');
 const path = require('path');
 const app = express();
 
+const PORT = process.env.PORT || 3001;
+
 app.use(express.static('public'));
 app.use(express.json());
 
@@ -62,6 +64,6 @@ app.delete("/api/notes/:id", async (req, res) => {
     res.json('Note deleted successfully');
 });
 
-app.listen(3001, () => {
-    console.log("Server is listening ton port 3001");
+app.listen(PORT, () => {
+    console.log("Server is listening on port", PORT);
 });
