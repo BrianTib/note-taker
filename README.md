@@ -15,5 +15,5 @@ Note Taker is a webapplication to store data to an express backend. It uses expr
 For additional questions contact me through [GitHub](https://github.com/briantib) or [via email](mailto:bptiburcio@gmail.com)
 
 # Links
-[GitHub Repo](https://github.com/BrianTib/note-taker)
-[Render Deployment](https://note-taker-ads0.onrender.com)
+- [GitHub Repo](https://github.com/BrianTib/note-taker)
+- [Render Deployment](https://note-taker-ads0.onrender.com)
