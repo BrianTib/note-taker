@@ -58,7 +58,7 @@ const renderActiveNote = () => {
   hide(saveNoteBtn);
   hide(clearBtn);
 
-  if (activeNote.id) {
+  if (activeNote?.id) {
     show(newNoteBtn);
     noteTitle.setAttribute('readonly', true);
     noteText.setAttribute('readonly', true);
@@ -78,6 +78,7 @@ const handleNoteSave = () => {
     title: noteTitle.value,
     text: noteText.value
   };
+
   saveNote(newNote).then(() => {
     getAndRenderNotes();
     renderActiveNote();
@@ -94,10 +95,10 @@ const handleNoteDelete = (e) => {
 
   if (activeNote.id === noteId) {
     activeNote = {};
-    renderActiveNote();
   }
 
-  deleteNote(noteId).then(getAndRenderNotes);
+  deleteNote(noteId)
+    .then(getAndRenderNotes);
 };
 
 // Sets the activeNote and displays it
@@ -127,8 +128,10 @@ const handleRenderBtns = () => {
 };
 
 // Render the list of note titles
-const renderNoteList = async (notes) => {
-  let jsonNotes = await notes.json();
+const renderNoteList = async (notesJSON) => {
+  notesJSON = await notesJSON.json();
+  const notes = Object.keys(notesJSON).map((key) => notesJSON[key]);
+
   if (window.location.pathname === '/notes') {
     noteList.forEach((el) => (el.innerHTML = ''));
   }
@@ -136,13 +139,13 @@ const renderNoteList = async (notes) => {
   let noteListItems = [];
 
   // Returns HTML element with or without a delete button
-  const createLi = (text, delBtn = true) => {
+  const createLi = (text, id, delBtn = true) => {
     const liEl = document.createElement('li');
     liEl.classList.add('list-group-item');
 
     const spanEl = document.createElement('span');
     spanEl.classList.add('list-item-title');
-    spanEl.innerText = text;
+    spanEl.innerText = `${text} (${id})`;
     spanEl.addEventListener('click', handleNoteView);
 
     liEl.append(spanEl);
@@ -164,12 +167,12 @@ const renderNoteList = async (notes) => {
     return liEl;
   };
 
-  if (jsonNotes.length === 0) {
-    noteListItems.push(createLi('No saved Notes', false));
+  if (notes.length === 0) {
+    noteListItems.push(createLi('No saved Notes', null, false));
   }
 
-  jsonNotes.forEach((note) => {
-    const li = createLi(note.title);
+  notes.forEach((note) => {
+    const li = createLi(note.title, note.id);
     li.dataset.note = JSON.stringify(note);
 
     noteListItems.push(li);

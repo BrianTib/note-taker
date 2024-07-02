@@ -1,4 +1,4 @@
-const { writeFile, readFileSync } = require('fs');
+const { writeFileSync, readFileSync } = require('fs');
 const express = require('express');
 const crypto = require('crypto');
 const path = require('path');
@@ -21,7 +21,7 @@ app.get('/api/notes', (req, res) => {
     res.json(JSON.parse(notes));
 });
 
-app.post('/api/notes', (req, res) => {
+app.post('/api/notes', async (req, res) => {
     // Get the title and text from the request body
     const { title, text } = req.body;
 
@@ -34,39 +34,32 @@ app.post('/api/notes', (req, res) => {
     const id = crypto.randomUUID();
 
     // Read notes from the json file
-    const notes = require('./db/db.json');
-    // Add the new note to the notes array
-    notes.push({ title, text, id });
+    const notes = JSON.parse(readFileSync('./db/db.json')) || {};
+    // Add the new note to the notes object
+    notes[id] = { title, text, id };
+
     // Write the notes array back to the json file
     // Now with the new note included
-    writeFile('./db/db.json', JSON.stringify(notes, null, 2), (err) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send('Failed to save note');
-        }
-    });
-    
-    // Send the new note back to the client
-    res.json('Note deleted successfully');
+    writeFileSync('./db/db.json', JSON.stringify(notes, null, 2));
+    // Send the new note id back to the client
+    res.json({ id });
 });
 
-app.delete("/api/notes/:id", (req, res) => {
+app.delete("/api/notes/:id", async (req, res) => {
     // Get the id of the note to be deleted
     const id = req.params.id;
+    if (!id) {
+        return res.status(400).send('Invalid request body');
+    }
 
     // Read notes from the json file
-    const notes = require('./db/db.json');
+    const notes = JSON.parse(readFileSync('./db/db.json'));
     // Remove the note with the given id
-    const newNotes = notes.filter((note) => note.id !== id);
+    delete notes[id];
+
     // Write the new notes array back to the json file
-    writeFile('./db/db.json', JSON.stringify(newNotes, null, 2), (err) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send('Failed to delete note');
-        }
-    });
-    // Send the deleted note back to the client
-    res.json({ id });
+    writeFileSync('./db/db.json', JSON.stringify(notes, null, 2));
+    res.json('Note deleted successfully');
 });
 
 app.listen(3001, () => {
